@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Трекинг карьеры{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/tracking.css' %}">
+{% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/tracking.js' %}"></script>{% endblock %}
+
+{% block guest_message %}
+{% if not user.is_authenticated %}
+<div class="guest-message">
+    <i class="fa-solid fa-info-circle"></i>
+    <strong>Режим просмотра.</strong>
+    Войдите в систему чтобы отслеживать свою карьерную траекторию.
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="grid">
+    <section class="card">
+        <h2><i class="fa-solid fa-briefcase"></i> 
+            {% if user.is_authenticated %}Мой карьерный путь{% else %}Пример карьерного пути{% endif %}
+        </h2>
+        
+        {% if not user.is_authenticated %}
+        <p class="view-only">
+            <i class="fa-solid fa-eye"></i> Это демонстрация возможностей трекинга
+        </p>
+        {% endif %}
+
+        <div class="timeline {% if not user.is_authenticated %}demo-timeline{% endif %}">
+            {% if user.is_authenticated and experiences %}
+                {% for experience in experiences %}
+                <div class="timeline-item">
+                    <div class="timeline-date">{{ experience.start_date }} - {{ experience.end_date|default:"Настоящее время" }}</div>
+                    <div class="demo-content">
+                        <h3>{{ experience.position }}</h3>
+                        <p><strong>Компания:</strong> {{ experience.company }}</p>
+                        <p><strong>Обязанности:</strong> {{ experience.description }}</p>
+                        {% if user.is_authenticated %}
+                        <form method="POST" action="{% url 'delete_experience' experience.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-small btn-danger">
+                                <i class="fa-solid fa-trash"></i> Удалить
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- Демо-контент для гостей -->
+                <div class="timeline-item">
+                    <div class="timeline-date">2024 - Настоящее время</div>
+                    <div class="demo-content">
+                        <h3>Middle Frontend Developer</h3>
+                        <p><strong>Компания:</strong> TechSolutions Inc.</p>
+                        <p><strong>Обязанности:</strong> Разработка SPA на React, код-ревью, менторство</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">2022 - 2024</div>
+                    <div class="demo-content">
+                        <h3>Junior Frontend Developer</h3>
+                        <p><strong>Компания:</strong> WebStudio Pro</p>
+                        <p><strong>Обязанности:</strong> Верстка интерфейсов, работа с API</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">2021 - 2022</div>
+                    <div class="demo-content">
+                        <h3>Стажер</h3>
+                        <p><strong>Компания:</strong> Digital Agency</p>
+                        <p><strong>Обязанности:</strong> Изучение технологий, помощь в проектах</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="{% if not user.is_authenticated %}action-disabled{% endif %}" style="position: relative; margin-top: 2rem;">
+            <form id="addExperienceForm" method="POST" action="{% url 'add_experience' %}"
+                  {% if not user.is_authenticated %}onsubmit="event.preventDefault(); alert('Войдите для добавления опыта');"{% endif %}>
+                {% csrf_token %}
+                <h3><i class="fa-solid fa-plus-circle"></i> Добавить опыт работы</h3>
+                <div class="form-group">
+                    <label for="expTitle">Должность:</label>
+                    <input type="text" id="expTitle" name="position" 
+                           placeholder="{% if not user.is_authenticated %}Войдите чтобы добавлять опыт{% endif %}"
+                           {% if not user.is_authenticated %}disabled{% endif %}>
+                </div>
+                <div class="form-group">
+                    <label for="expCompany">Компания:</label>
+                    <input type="text" id="expCompany" name="company" 
+                           placeholder="{% if not user.is_authenticated %}Требуется авторизация{% endif %}"
+                           {% if not user.is_authenticated %}disabled{% endif %}>
+                </div>
+                <div class="form-group">
+                    <label for="expPeriod">Период работы:</label>
+                    <input type="text" id="expPeriod" name="period" 
+                           placeholder="Например: 2020-2022"
+                           {% if not user.is_authenticated %}disabled{% endif %}>
+                </div>
+                <div class="form-group">
+                    <label for="expDescription">Описание:</label>
+                    <textarea id="expDescription" name="description" rows="3"
+                              {% if not user.is_authenticated %}disabled{% endif %}></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" {% if not user.is_authenticated %}disabled{% endif %}>
+                    <i class="fa-solid fa-plus"></i> Добавить опыт
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2><i class="fa-solid fa-bullseye"></i> 
+            {% if user.is_authenticated %}Мои цели{% else %}Пример целей{% endif %}
+        </h2>
+        
+        {% if not user.is_authenticated %}
+        <p class="view-only">
+            <i class="fa-solid fa-eye"></i> Демонстрация системы целей
+        </p>
+        {% endif %}
+
+        <div class="demo-content" style="margin: 1rem 0;">
+            {% if user.is_authenticated and goals %}
+                {% for goal in goals %}
+                <div class="goal-item">
+                    <input type="checkbox" class="goal-checkbox" 
+                           {% if goal.completed %}checked{% endif %}
+                           onchange="toggleGoal('{{ goal.id }}')">
+                    <div class="goal-text {% if goal.completed %}goal-completed{% endif %}">
+                        {{ goal.text }}
+                        {% if goal.deadline %}
+                        <br><small>До: {{ goal.deadline }}</small>
+                        {% endif %}
+                    </div>
+                    <form method="POST" action="{% url 'delete_goal' goal.id %}" style="margin-left: auto;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-small btn-danger">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- Демо-контент для гостей -->
+                <div class="goal-item">
+                    <input type="checkbox" class="goal-checkbox" checked disabled>
+                    <div class="goal-text goal-completed">Изучить React и Redux</div>
+                </div>
+                <div class="goal-item">
+                    <input type="checkbox" class="goal-checkbox" disabled>
+                    <div class="goal-text">Найти работу Junior Developer</div>
+                </div>
+                <div class="goal-item">
+                    <input type="checkbox" class="goal-checkbox" disabled>
+                    <div class="goal-text">Изучить TypeScript</div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="{% if not user.is_authenticated %}action-disabled{% endif %}" style="position: relative;">
+            <form id="addGoalForm" method="POST" action="{% url 'add_goal' %}"
+                  {% if not user.is_authenticated %}onsubmit="event.preventDefault(); alert('Войдите для добавления целей');"{% endif %}>
+                {% csrf_token %}
+                <h3><i class="fa-solid fa-plus-circle"></i> Добавить цель</h3>
+                <div class="form-group">
+                    <label for="goalText">Цель:</label>
+                    <input type="text" id="goalText" name="text" 
+                           placeholder="{% if not user.is_authenticated %}Войдите чтобы ставить цели{% endif %}"
+                           {% if not user.is_authenticated %}disabled{% endif %}>
+                </div>
+                <div class="form-group">
+                    <label for="goalDeadline">Срок выполнения:</label>
+                    <input type="date" id="goalDeadline" name="deadline"
+                           {% if not user.is_authenticated %}disabled{% endif %}>
+                </div>
+                <button type="submit" class="btn btn-primary" {% if not user.is_authenticated %}disabled{% endif %}>
+                    <i class="fa-solid fa-plus"></i> Добавить цель
+                </button>
+            </form>
+        </div>
+    </section>
+</div>
+
+{% if not user.is_authenticated %}
+<div class="auth-prompt">
+    <h3><i class="fas fa-road"></i> Начните отслеживать свою карьеру!</h3>
+    <p>Войдите в систему чтобы получить доступ к:</p>
+    <div class="benefits-list">
+        <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Личной временной линии карьеры</span>
+        </div>
+        <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Постановке и отслеживанию целей</span>
+        </div>
+        <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Визуализации прогресса</span>
+        </div>
+        <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Напоминаниям о достижениях</span>
+        </div>
+    </div>
+    <a href="{% url 'login' %}" class="btn btn-primary">
+        <i class="fas fa-sign-in-alt"></i> Войти и начать отслеживание
+    </a>
+</div>
+{% endif %}
+{% endblock %}

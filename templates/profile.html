@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/profile.css' %}">{% endblock %}
+
+{% block guest_message %}
+{% if not user.is_authenticated %}
+<div class="guest-message">
+    <i class="fa-solid fa-info-circle"></i>
+    <strong>Вы просматриваете страницу как гость.</strong>
+    Войдите в систему чтобы получить полный доступ к функции профиля.
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="profile-header">
+    <div class="avatar-container">
+        <div class="avatar" id="userAvatar">
+            {% if user.is_authenticated and user.profile.avatar %}
+            <img id="avatarImage" src="{{ user.profile.avatar.url }}" alt="Аватар">
+            {% else %}
+            <span id="avatarPlaceholder">👤</span>
+            {% endif %}
+        </div>
+        {% if user.is_authenticated %}
+        <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+        <button type="button" class="btn btn-secondary btn-small" id="changeAvatarBtn" style="margin-top: 0.5rem;">
+            <i class="fa-solid fa-camera"></i> Сменить аватар
+        </button>
+        {% endif %}
+    </div>
+    <div>
+        <h1 id="userName">
+            {% if user.is_authenticated %}
+                {{ user.get_full_name|default:user.username }}
+            {% else %}
+                Гость
+            {% endif %}
+        </h1>
+        <p id="userTitle">
+            {% if user.is_authenticated %}
+                {{ user.profile.title|default:"Добро пожаловать в CareerTrack!" }}
+            {% else %}
+                Добро пожаловать в CareerTrack!
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+<div class="grid">
+    <section class="card {% if not user.is_authenticated %}limited-functionality{% endif %}">
+        <h2><i class="fa-solid fa-id-card"></i> Основная информация</h2>
+        
+        {% if not user.is_authenticated %}
+        <p class="view-only" style="padding: 1rem; border-radius: 8px;">
+            <i class="fa-solid fa-eye"></i> Режим просмотра. Войдите чтобы редактировать профиль.
+        </p>
+        {% endif %}
+
+        <form id="profileForm" method="POST" action="{% url 'profile_update' %}" 
+              {% if not user.is_authenticated %}onsubmit="event.preventDefault(); alert('Войдите для редактирования профиля');"{% endif %}>
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="name"><i class="fa-solid fa-signature"></i> ФИО:</label>
+                <input type="text" id="name" name="full_name" 
+                       value="{% if user.is_authenticated %}{{ user.get_full_name }}{% endif %}" 
+                       placeholder="{% if not user.is_authenticated %}Не указано (войдите чтобы изменить){% endif %}"
+                       {% if not user.is_authenticated %}disabled{% endif %}>
+            </div>
+
+            <div class="form-group">
+                <label for="university"><i class="fa-solid fa-university"></i> Университет:</label>
+                <input type="text" id="university" name="university" 
+                       value="{% if user.is_authenticated %}{{ user.profile.university }}{% endif %}"
+                       {% if not user.is_authenticated %}disabled{% endif %}>
+            </div>
+
+            <div class="form-group">
+                <label for="specialty"><i class="fa-solid fa-graduation-cap"></i> Специальность:</label>
+                <input type="text" id="specialty" name="specialty" 
+                       value="{% if user.is_authenticated %}{{ user.profile.specialty }}{% endif %}"
+                       {% if not user.is_authenticated %}disabled{% endif %}>
+            </div>
+
+            <div class="form-group">
+                <label for="skills"><i class="fa-solid fa-tools"></i> Навыки (через запятую):</label>
+                <input type="text" id="skills" name="skills" 
+                       value="{% if user.is_authenticated %}{{ user.profile.skills }}{% endif %}"
+                       placeholder="HTML, CSS, JavaScript"
+                       {% if not user.is_authenticated %}disabled{% endif %}>
+            </div>
+
+            {% if user.is_authenticated %}
+            <div class="form-group">
+                <label for="resume"><i class="fa-solid fa-file-pdf"></i> Резюме:</label>
+                <div class="resume-container">
+                    <input type="file" id="resumeInput" name="resume" accept=".pdf,.doc,.docx" style="display: none;">
+                    <button type="button" class="btn btn-secondary" id="uploadResumeBtn">
+                        <i class="fa-solid fa-upload"></i> Загрузить резюме
+                    </button>
+                    {% if user.profile.resume %}
+                    <div id="resumeInfo" style="margin-top: 0.5rem;">
+                        <span id="resumeName">{{ user.profile.resume.name }}</span>
+                        <a href="{{ user.profile.resume.url }}" class="btn btn-small" download>
+                            <i class="fa-solid fa-download"></i>
+                        </a>
+                        <button type="button" class="btn btn-small btn-danger" id="deleteResumeBtn">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if user.is_authenticated %}
+            <button type="submit" class="btn btn-primary action-btn">
+                <i class="fa-solid fa-save"></i> Сохранить изменения
+            </button>
+            {% endif %}
+        </form>
+    </section>
+
+    <section class="card">
+        <h2><i class="fa-solid fa-chart-line"></i> Статистика платформы</h2>
+        <div class="progress-container">
+            <div class="progress-stat">
+                <span>Активных вакансий</span>
+                <span>{{ stats.active_jobs }}</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" data-width="{{ stats.jobs_percentage|default:'0' }}"></div>
+            </div>
+
+            <div class="progress-stat" style="margin-top: 1rem;">
+                <span>Компаний-партнеров</span>
+                <span>{{ stats.partner_companies }}</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" data-width="{{ stats.companies_percentage|default:'0' }}"></div>
+            </div>
+        </div>
+
+        <div class="stats-grid" style="margin-top: 2rem;">
+            <div class="stat-item">
+                <div class="stat-value">{{ stats.total_students }}+</div>
+                <div class="stat-label">Студентов</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ stats.employment_rate }}%</div>
+                <div class="stat-label">Трудоустройство</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ stats.rating }}</div>
+                <div class="stat-label">Рейтинг</div>
+            </div>
+        </div>
+    </section>
+</div>
+
+{% if not user.is_authenticated %}
+<div class="auth-prompt">
+    <h3><i class="fas fa-unlock"></i> Получите полный доступ к профилю!</h3>
+    <p>Войдите в систему чтобы разблокировать все возможности:</p>
+    <div class="benefits-list">
+        <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Создание и редактирование профиля</span>
+        </div>
+        <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Загрузка аватара и резюме</span>
+        </div>
+        <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Указание навыков и образования</span>
+        </div>
+        <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Персональные рекомендации</span>
+        </div>
+    </div>
+    <a href="{% url 'login' %}" class="btn btn-primary">
+        <i class="fas fa-sign-in-alt"></i> Войти и настроить профиль
+    </a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/profile.js' %}"></script>
+{% endblock %}

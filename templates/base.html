@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerTrack — {% block title %}Главная{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/structure.css' %}">
+    <link rel="stylesheet" href="{% static 'css/header.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <i class="fa-solid fa-rocket"></i>
+                CareerTrack
+            </div>
+
+            <nav class="main-nav">
+                <a href="{% url 'index' %}" {% if request.resolver_match.url_name == 'index' %}class="active"{% endif %}>
+                    <i class="fa-solid fa-home"></i> Главная
+                </a>
+                <a href="{% url 'profile' %}" {% if request.resolver_match.url_name == 'profile' %}class="active"{% endif %}>
+                    <i class="fa-solid fa-user"></i> Профиль
+                </a>
+                <a href="{% url 'tracking' %}" {% if request.resolver_match.url_name == 'tracking' %}class="active"{% endif %}>
+                    <i class="fa-solid fa-chart-line"></i> Трекинг
+                </a>
+                <a href="{% url 'jobs' %}" {% if request.resolver_match.url_name == 'jobs' %}class="active"{% endif %}>
+                    <i class="fa-solid fa-briefcase"></i> Вакансии
+                </a>
+                <a href="{% url 'stories' %}" {% if request.resolver_match.url_name == 'stories' %}class="active"{% endif %}>
+                    <i class="fa-solid fa-star"></i> Истории
+                </a>
+                <a href="{% url 'forum' %}" {% if request.resolver_match.url_name == 'forum' %}class="active"{% endif %}>
+                    <i class="fa-solid fa-comments"></i> Форум
+                </a>
+            </nav>
+
+            <div class="header-right">
+                <div class="auth-buttons">
+                    {% if user.is_authenticated %}
+                    <a href="#" id="logoutBtn" class="auth-btn auth-btn-primary">
+                        <i class="fa-solid fa-sign-out-alt"></i> Выйти
+                    </a>
+                    {% else %}
+                    <a href="{% url 'login' %}" id="authBtn" class="auth-btn">
+                        <i class="fa-solid fa-sign-in-alt"></i> Войти
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        {% block messages %}
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="notification {{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endblock %}
+
+        {% block guest_message %}
+        {% if not user.is_authenticated and not hide_guest_message %}
+        <div class="guest-message">
+            <i class="fa-solid fa-info-circle"></i>
+            <strong>Режим просмотра.</strong>
+            Войдите в систему чтобы получить доступ ко всем функциям платформы.
+        </div>
+        {% endif %}
+        {% endblock %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2024 CareerTrack</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/auth.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

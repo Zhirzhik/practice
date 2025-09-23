@@ -1,0 +1,235 @@
+/* ===== FORUM STYLES ===== */
+.forum-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.forum-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--dark);
+}
+
+.forum-header h1 i {
+  margin-right: 0.5rem;
+  color: var(--primary);
+}
+
+.forum-header p {
+  color: var(--gray);
+  font-size: 1.1rem;
+}
+
+.forum-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.forum-stat {
+  background: var(--bg-card);
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.forum-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.create-topic-section {
+  margin-bottom: 2rem;
+}
+
+.topics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.topic-card {
+  background: var(--bg-card);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.topic-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.topic-author {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.topic-avatar, .topic-avatar-placeholder {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: white;
+  font-weight: bold;
+}
+
+.topic-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.topic-author-name {
+  font-weight: 500;
+  color: var(--dark);
+}
+
+.topic-date {
+  font-size: 0.9rem;
+  color: var(--gray);
+}
+
+.topic-category {
+  background: rgba(67, 97, 238, 0.1);
+  color: var(--primary);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.topic-content h3 {
+  margin-bottom: 0.5rem;
+}
+
+.topic-content h3 a {
+  color: var(--dark);
+  text-decoration: none;
+}
+
+.topic-content h3 a:hover {
+  color: var(--primary);
+}
+
+.topic-excerpt {
+  color: var(--gray);
+  margin-bottom: 1rem;
+}
+
+.topic-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.topic-stats {
+  display: flex;
+  gap: 1.5rem;
+  color: var(--gray);
+  font-size: 0.9rem;
+}
+
+.topic-stats span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.topic-replies-preview {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.reply-preview {
+  background: rgba(0, 0, 0, 0.02);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.reply-author {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.reply-avatar, .reply-avatar-placeholder {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.reply-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.reply-author-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.reply-text {
+  color: var(--gray);
+  font-size: 0.9rem;
+}
+
+/* ===== PAGINATION ===== */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 2rem 0;
+}
+
+.pagination-item {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--light-gray);
+  border-radius: 6px;
+  color: var(--dark);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.pagination-item:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.pagination-active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}

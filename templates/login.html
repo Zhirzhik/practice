@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Вход{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-logo">CareerTrack</div>
+        
+        <h2 class="login-title"><i class="fa-solid fa-sign-in-alt"></i> Вход в систему</h2>
+
+        <form id="loginForm" method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="loginEmail">Email:</label>
+                <input type="email" id="loginEmail" name="email" class="form-control" required 
+                       value="{{ form.email.value|default:'' }}">
+                {% if form.email.errors %}
+                <div class="error">{{ form.email.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="loginPassword">Пароль:</label>
+                <input type="password" id="loginPassword" name="password" class="form-control" required>
+                {% if form.password.errors %}
+                <div class="error">{{ form.password.errors }}</div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fa-solid fa-sign-in-alt"></i> Войти
+            </button>
+
+            <div class="auth-links">
+                <a href="#" id="showRegister">Нет аккаунта? Зарегистрироваться</a>
+            </div>
+        </form>
+
+        <form id="registerForm" method="POST" action="{% url 'register' %}" style="display: none;">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="regName">ФИО:</label>
+                <input type="text" id="regName" name="full_name" class="form-control" required 
+                       value="{{ register_form.full_name.value|default:'' }}">
+                {% if register_form.full_name.errors %}
+                <div class="error">{{ register_form.full_name.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="regEmail">Email:</label>
+                <input type="email" id="regEmail" name="email" class="form-control" required 
+                       value="{{ register_form.email.value|default:'' }}">
+                {% if register_form.email.errors %}
+                <div class="error">{{ register_form.email.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="regPassword">Пароль:</label>
+                <input type="password" id="regPassword" name="password1" class="form-control" required>
+                {% if register_form.password1.errors %}
+                <div class="error">{{ register_form.password1.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="regConfirm">Подтвердите пароль:</label>
+                <input type="password" id="regConfirm" name="password2" class="form-control" required>
+                {% if register_form.password2.errors %}
+                <div class="error">{{ register_form.password2.errors }}</div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fa-solid fa-user-plus"></i> Зарегистрироваться
+            </button>
+
+            <div class="auth-links">
+                <a href="#" id="showLogin">Уже есть аккаунт? Войти</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/auth.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const showRegister = document.getElementById('showRegister');
+    const showLogin = document.getElementById('showLogin');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+
+    showRegister.addEventListener('click', function(e) {
+        e.preventDefault();
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+    });
+
+    showLogin.addEventListener('click', function(e) {
+        e.preventDefault();
+        registerForm.style.display = 'none';
+        loginForm.style.display = 'block';
+    });
+
+    const passwordField = document.getElementById('regPassword');
+    const confirmField = document.getElementById('regConfirm');
+
+    confirmField.addEventListener('blur', function() {
+        if (passwordField.value !== confirmField.value) {
+            alert('Пароли не совпадают!');
+        }
+    });
+});
+</script>
+{% endblock %}

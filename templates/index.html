@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Главная{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Герой-секция -->
+<div class="hero-section">
+    <h1>Добро пожаловать в CareerTrack{% if user.is_authenticated %}, {{ user.first_name }}{% endif %}!</h1>
+    <p>Сервис для отслеживания карьерных траекторий студентов и выпускников.</p>
+    
+    {% if not user.is_authenticated %}
+    <div class="hero-actions">
+        <a href="{% url 'login' %}" class="btn btn-primary btn-large">
+            <i class="fa-solid fa-sign-in-alt"></i> Начать работу
+        </a>
+        <a href="{% url 'jobs' %}" class="btn btn-secondary btn-large">
+            <i class="fa-solid fa-briefcase"></i> Смотреть вакансии
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Статистика платформы -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">{{ stats.active_jobs }}+</div>
+        <div class="stat-label">Активных вакансий</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ stats.partner_companies }}+</div>
+        <div class="stat-label">Компаний-партнеров</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ stats.success_stories }}+</div>
+        <div class="stat-label">Историй успеха</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ stats.active_users }}+</div>
+        <div class="stat-label">Активных пользователей</div>
+    </div>
+</div>
+
+<!-- Возможности платформы -->
+<div class="features-section">
+    <h2><i class="fa-solid fa-rocket"></i> Возможности CareerTrack</h2>
+    
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fa-solid fa-road"></i>
+            </div>
+            <h3>Трекинг карьеры</h3>
+            <p>Создайте свою карьерную временную линию, отслеживайте прогресс и достигайте профессиональных целей</p>
+            <a href="{% url 'tracking' %}" class="btn btn-link">
+                <i class="fa-solid fa-arrow-right"></i> Подробнее
+            </a>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fa-solid fa-briefcase"></i>
+            </div>
+            <h3>Вакансии</h3>
+            <p>Тысячи актуальных вакансий от проверенных компаний с возможностью прямого отклика</p>
+            <a href="{% url 'jobs' %}" class="btn btn-link">
+                <i class="fa-solid fa-arrow-right"></i> Смотреть вакансии
+            </a>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fa-solid fa-star"></i>
+            </div>
+            <h3>Истории успеха</h3>
+            <p>Вдохновляйтесь реальными истории карьерного роста и делитесь своими достижениями</p>
+            <a href="{% url 'stories' %}" class="btn btn-link">
+                <i class="fa-solid fa-arrow-right"></i> Читать истории
+            </a>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fa-solid fa-comments"></i>
+            </div>
+            <h3>Сообщество</h3>
+            <p>Общайтесь с единомышленниками, задавайте вопросы и получайте советы от опытных специалистов</p>
+            <a href="{% url 'forum' %}" class="btn btn-link">
+                <i class="fa-solid fa-arrow-right"></i> Присоединиться
+            </a>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <h3>Профиль</h3>
+            <p>Создайте профессиональное портфолио, загрузите резюме и получите персональные рекомендации</p>
+            <a href="{% url 'profile' %}" class="btn btn-link">
+                <i class="fa-solid fa-arrow-right"></i> Создать профиль
+            </a>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <h3>Аналитика</h3>
+            <p>Получайте статистику по вашему прогрессу и рекомендации для дальнейшего развития</p>
+            <a href="{% url 'tracking' %}" class="btn btn-link">
+                <i class="fa-solid fa-arrow-right"></i> Смотреть аналитику
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Призыв к действию -->
+{% if not user.is_authenticated %}
+<div class="auth-prompt">
+    <h3><i class="fa-solid fa-unlock"></i> Начните свой карьерный путь сегодня!</h3>
+    <p>Присоединяйтесь к тысячам студентов и выпускников, которые уже используют CareerTrack</p>
+    <div class="benefits-list">
+        <div class="benefit-item">
+            <i class="fa-solid fa-check-circle"></i>
+            <span>Бесплатный доступ ко всем функциям</span>
+        </div>
+        <div class="benefit-item">
+            <i class="fa-solid fa-check-circle"></i>
+            <span>Персональные рекомендации по карьере</span>
+        </div>
+        <div class="benefit-item">
+            <i class="fa-solid fa-check-circle"></i>
+            <span>Прямой контакт с работодателями</span>
+        </div>
+        <div class="benefit-item">
+            <i class="fa-solid fa-check-circle"></i>
+            <span>Поддержка сообщества</span>
+        </div>
+    </div>
+    <a href="{% url 'login' %}" class="btn btn-primary btn-large">
+        <i class="fa-solid fa-user-plus"></i> Присоединиться бесплатно
+    </a>
+</div>
+{% endif %}
+{% endblock %}

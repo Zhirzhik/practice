@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Форум{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/forum.css' %}">
+{% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/forum.js' %}"></script>{% endblock %}
+
+{% block guest_message %}
+{% if not user.is_authenticated %}
+<div class="guest-message">
+    <i class="fa-solid fa-info-circle"></i>
+    <strong>Режим просмотра форума.</strong>
+    Войдите в систему чтобы создавать темы и участвовать в обсуждениях.
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="forum-header">
+    <h1><i class="fa-solid fa-comments"></i> Сообщество CareerTrack</h1>
+    <p>Задавайте вопросы, делитесь опытом и находите единомышленников</p>
+</div>
+
+<div class="forum-stats">
+    <div class="forum-stat">
+        <div class="stat-number">{{ stats.total_topics }}</div>
+        <div class="stat-label">Тем</div>
+    </div>
+    <div class="forum-stat">
+        <div class="stat-number">{{ stats.total_posts }}</div>
+        <div class="stat-label">Сообщений</div>
+    </div>
+    <div class="forum-stat">
+        <div class="stat-number">{{ stats.total_users }}</div>
+        <div class="stat-label">Участников</div>
+    </div>
+</div>
+
+<div class="forum-controls">
+    <div class="search-box">
+        <i class="fa-solid fa-search"></i>
+        <input type="text" id="forumSearch" placeholder="Поиск по форуму..." value="{{ search_query|default:'' }}">
+    </div>
+    <select id="forumFilter" class="filter-select">
+        <option value="all" {% if not category %}selected{% endif %}>Все темы</option>
+        <option value="career" {% if category == 'career' %}selected{% endif %}>Карьера</option>
+        <option value="study" {% if category == 'study' %}selected{% endif %}>Учеба</option>
+        <option value="interview" {% if category == 'interview' %}selected{% endif %}>Собеседования</option>
+        <option value="recent" {% if category == 'recent' %}selected{% endif %}>Самые новые</option>
+        <option value="popular" {% if category == 'popular' %}selected{% endif %}>Самые популярные</option>
+    </select>
+</div>
+
+{% if user.is_authenticated %}
+<div class="create-topic-section">
+    <button class="btn btn-primary" onclick="toggleTopicForm()">
+        <i class="fa-solid fa-plus"></i> Создать новую тему
+    </button>
+    
+    <form id="topicForm" method="POST" action="{% url 'create_topic' %}" style="display: none; margin-top: 1rem;">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="topicTitle">Заголовок темы:</label>
+            <input type="text" id="topicTitle" name="title" required maxlength="200">
+        </div>
+        <div class="form-group">
+            <label for="topicContent">Содержание:</label>
+            <textarea id="topicContent" name="content" rows="4" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="topicCategory">Категория:</label>
+            <select id="topicCategory" name="category" required>
+                <option value="career">Карьера</option>
+                <option value="study">Учеба</option>
+                <option value="interview">Собеседования</option>
+                <option value="other">Другое</option>
+            </select>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-paper-plane"></i> Создать тему
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="toggleTopicForm()">
+                <i class="fa-solid fa-times"></i> Отмена
+            </button>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+<div id="topicsList" class="topics-list">
+    {% for topic in topics %}
+    <div class="topic-card">
+        <div class="topic-header">
+            <div class="topic-author">
+                {% if topic.author.profile.avatar %}
+                <img src="{{ topic.author.profile.avatar.url }}" alt="{{ topic.author.get_full_name }}" class="topic-avatar">
+                {% else %}
+                <div class="topic-avatar-placeholder">{{ topic.author.get_full_name|first|upper }}</div>
+                {% endif %}
+                <div class="topic-author-info">
+                    <div class="topic-author-name">{{ topic.author.get_full_name }}</div>
+                    <div class="topic-date">{{ topic.created_at|date:"d M Y H:i" }}</div>
+                </div>
+            </div>
+            <div class="topic-category">{{ topic.get_category_display }}</div>
+        </div>
+
+        <div class="topic-content">
+            <h3 class="topic-title">
+                <a href="{% url 'topic_detail' topic.id %}">{{ topic.title }}</a>
+            </h3>
+            <p class="topic-excerpt">{{ topic.content|truncatewords:30 }}</p>
+        </div>
+
+        <div class="topic-footer">
+            <div class="topic-stats">
+                <span class="topic-views">
+                    <i class="fa-solid fa-eye"></i>
+                    {{ topic.views }}
+                </span>
+                <span class="topic-replies">
+                    <i class="fa-solid fa-comment"></i>
+                    {{ topic.replies.count }}
+                </span>
+                {% if topic.last_reply %}
+                <span class="topic-last-reply">
+                    Последний ответ: {{ topic.last_reply.created_at|timesince }} назад
+                </span>
+                {% endif %}
+            </div>
+            
+            <div class="topic-actions">
+                {% if user.is_authenticated %}
+                    {% if user == topic.author or user.is_staff %}
+                    <form method="POST" action="{% url 'delete_topic' topic.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-small btn-danger" 
+                                onclick="return confirm('Удалить тему?')">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+
+        {% if topic.replies.exists %}
+        <div class="topic-replies-preview">
+            <h4>Последние ответы:</h4>
+            {% for reply in topic.replies.all|slice:":2" %}
+            <div class="reply-preview">
+                <div class="reply-author">
+                    {% if reply.author.profile.avatar %}
+                    <img src="{{ reply.author.profile.avatar.url }}" alt="{{ reply.author.get_full_name }}" class="reply-avatar">
+                    {% else %}
+                    <div class="reply-avatar-placeholder">{{ reply.author.get_full_name|first|upper }}</div>
+                    {% endif %}
+                    <span class="reply-author-name">{{ reply.author.get_full_name }}</span>
+                </div>
+                <p class="reply-text">{{ reply.text|truncatewords:20 }}</p>
+            </div>
+            {% endfor %}
+            
+            {% if topic.replies.count > 2 %}
+            <a href="{% url 'topic_detail' topic.id %}" class="btn btn-link">
+                Показать все ответы ({{ topic.replies.count }})
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div class="no-results">
+        <i class="fa-solid fa-comments" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;"></i>
+        <h3>Темы не найдены</h3>
+        <p>Будьте первым, кто создаст тему для обсуждения!</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Пагинация -->
+{% if topics.has_other_pages %}
+<div class="pagination">
+    {% if topics.has_previous %}
+    <a href="?page={{ topics.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category %}&category={{ category }}{% endif %}" class="pagination-item">
+        <i class="fa-solid fa-chevron-left"></i>
+    </a>
+    {% endif %}
+
+    {% for num in topics.paginator.page_range %}
+        {% if topics.number == num %}
+        <span class="pagination-item pagination-active">{{ num }}</span>
+        {% else %}
+        <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category %}&category={{ category }}{% endif %}" class="pagination-item">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if topics.has_next %}
+    <a href="?page={{ topics.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category %}&category={{ category }}{% endif %}" class="pagination-item">
+        <i class="fa-solid fa-chevron-right"></i>
+    </a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if not user.is_authenticated %}
+<div class="auth-prompt">
+    <h3><i class="fas fa-users"></i> Присоединяйтесь к сообществу!</h3>
+    <p>Войдите в систему чтобы получить доступ к:</p>
+    <div class="benefits-list">
+        <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Созданию тем для обсуждения</span>
+        </div>
+        <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Участию в дискуссиях</span>
+        </div>
+        <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Получению советов от опытных специалистов</span>
+        </div>
+        <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Созданию опросов и голосований</span>
+        </div>
+    </div>
+    <a href="{% url 'login' %}" class="btn btn-primary">
+        <i class="fas fa-sign-in-alt"></i> Войти и общаться
+    </a>
+</div>
+{% endif %}
+{% endblock %}

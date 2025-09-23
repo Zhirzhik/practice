@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Вакансии{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/jobs.css' %}">
+{% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/jobs.js' %}"></script>{% endblock %}
+
+{% block guest_message %}
+{% if not user.is_authenticated %}
+<div class="guest-message">
+    <i class="fa-solid fa-info-circle"></i>
+    <strong>Режим просмотра вакансий.</strong>
+    Войдите в систему чтобы откликаться на вакансии и получать персональные рекомендации.
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="job-stats">
+    <div class="stat-item-large">
+        <div class="stat-number-large">{{ stats.active_jobs }}</div>
+        <div class="stat-label">Активных вакансий</div>
+    </div>
+    <div class="stat-item-large">
+        <div class="stat-number-large">{{ stats.partner_companies }}</div>
+        <div class="stat-label">Компаний-партнеров</div>
+    </div>
+</div>
+
+<div class="job-controls">
+    <div class="search-box">
+        <i class="fa-solid fa-search"></i>
+        <input type="text" id="jobSearch" placeholder="Поиск вакансий..." value="{{ search_query|default:'' }}">
+    </div>
+    <select id="jobFilter" class="filter-select">
+        <option value="all" {% if not category %}selected{% endif %}>Все вакансии</option>
+        <option value="it" {% if category == 'it' %}selected{% endif %}>IT и разработка</option>
+        <option value="design" {% if category == 'design' %}selected{% endif %}>Дизайн</option>
+        <option value="marketing" {% if category == 'marketing' %}selected{% endif %}>Маркетинг</option>
+        <option value="remote" {% if category == 'remote' %}selected{% endif %}>Удаленная работа</option>
+    </select>
+</div>
+
+<div id="jobList" class="job-list">
+    {% for job in jobs %}
+    <div class="job-card {% if not user.is_authenticated %}job-card-guest{% endif %}">
+        <div class="job-card-content">
+            <div class="job-card-header">
+                <h3 class="job-card-title">{{ job.title }}</h3>
+                <div class="job-card-company">{{ job.company }}</div>
+            </div>
+            <div class="job-card-meta">
+                <div class="job-card-meta-item">
+                    <i class="fa-solid fa-wallet"></i>
+                    <span class="job-card-salary">{{ job.salary }}</span>
+                </div>
+                <div class="job-card-meta-item">
+                    <i class="fa-solid fa-map-marker-alt"></i>
+                    <span>{{ job.location }}</span>
+                </div>
+                <div class="job-card-meta-item">
+                    <i class="fa-solid fa-briefcase"></i>
+                    <span>{{ job.experience }}</span>
+                </div>
+            </div>
+            <div class="job-card-description">
+                <p>{{ job.description }}</p>
+            </div>
+            <div class="job-card-skills">
+                {% for skill in job.skills.all %}
+                <span class="job-card-skill">{{ skill.name }}</span>
+                {% endfor %}
+            </div>
+            <div class="job-card-footer">
+                <div class="job-card-posted">Опубликовано {{ job.posted_at|timesince }} назад</div>
+                {% if user.is_authenticated %}
+                    {% if job in applied_jobs %}
+                    <span class="btn btn-secondary" disabled>Отправлено</span>
+                    {% else %}
+                    <form method="POST" action="{% url 'apply_job' job.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">
+                            Откликнуться
+                        </button>
+                    </form>
+                    {% endif %}
+                {% else %}
+                <button class="btn btn-primary apply-btn-guest">
+                    Откликнуться
+                </button>
+                {% endif %}
+            </div>
+            </div>
+        </div>
+    {% empty %}
+    <div class="no-results">
+        <i class="fa-solid fa-search" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;"></i>
+        <h3>Вакансии не найдены</h3>
+        <p>Попробуйте изменить параметры поиска</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Пагинация -->
+{% if jobs.has_other_pages %}
+<div class="pagination">
+    {% if jobs.has_previous %}
+    <a href="?page={{ jobs.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category %}&category={{ category }}{% endif %}" class="pagination-item">
+        <i class="fa-solid fa-chevron-left"></i>
+    </a>
+    {% endif %}
+
+    {% for num in jobs.paginator.page_range %}
+        {% if jobs.number == num %}
+        <span class="pagination-item pagination-active">{{ num }}</span>
+        {% else %}
+        <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category %}&category={{ category }}{% endif %}" class="pagination-item">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if jobs.has_next %}
+    <a href="?page={{ jobs.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category %}&category={{ category }}{% endif %}" class="pagination-item">
+        <i class="fa-solid fa-chevron-right"></i>
+    </a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if not user.is_authenticated %}
+<div class="auth-prompt">
+    <h3><i class="fas fa-briefcase"></i> Начните карьеру с CareerTrack!</h3>
+    <p>Войдите в систему чтобы получить доступ к:</p>
+    <div class="benefits-list">
+        <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Откликам на вакансии</span>
+        </div>
+        <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Персональным рекомендациям</span>
+        </div>
+        <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Отслеживанию откликов</span>
+        </div>
+        <div class="benefit-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Прямому контакту с работодателями</span>
+        </div>
+    </div>
+    <a href="{% url 'login' %}" class="btn btn-primary">
+        <i class="fas fa-sign-in-alt"></i> Войти и начать поиск
+    </a>
+</div>
+{% endif %}
+{% endblock %}
