@@ -24,12 +24,12 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # API endpoints
-    # path('api/auth/', include('apps.users.urls')),
-    # path('api/profile/', include('apps.users.profile_urls')),
-    # path('api/jobs/', include('apps.jobs.urls')),
-    # path('api/forum/', include('apps.forum.urls')),
-    # path('api/stories/', include('apps.stories.urls')),
-    # path('api/tracking/', include('apps.tracking.urls')),
+    path('api/auth/', include('apps.users.urls')),
+    path('api/profile/', include('apps.users.profile_urls')),
+    path('api/jobs/', include('apps.jobs.urls')),
+    path('api/forum/', include('apps.forum.urls')),
+    path('api/stories/', include('apps.stories.urls')),
+    path('api/tracking/', include('apps.tracking.urls')),
 
     # Main pages
     path('', TemplateView.as_view(template_name='index.html'), name='index'),
