@@ -60,7 +60,7 @@
         </p>
         {% endif %}
 
-        <form id="profileForm" method="POST" action="{% url 'profile_update' %}" 
+        <form id="profileForm" method="POST" action="{% url 'api_profile' %}" 
               {% if not user.is_authenticated %}onsubmit="event.preventDefault(); alert('Войдите для редактирования профиля');"{% endif %}>
             {% csrf_token %}
             

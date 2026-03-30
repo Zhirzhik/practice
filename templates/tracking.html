@@ -82,7 +82,7 @@
         </div>
 
         <div class="{% if not user.is_authenticated %}action-disabled{% endif %}" style="position: relative; margin-top: 2rem;">
-            <form id="addExperienceForm" method="POST" action="{% url 'add_experience' %}"
+            <form id="addExperienceForm" method="POST" action="{% url 'api_add_experience' %}"
                   {% if not user.is_authenticated %}onsubmit="event.preventDefault(); alert('Войдите для добавления опыта');"{% endif %}>
                 {% csrf_token %}
                 <h3><i class="fa-solid fa-plus-circle"></i> Добавить опыт работы</h3>
@@ -166,7 +166,7 @@
         </div>
 
         <div class="{% if not user.is_authenticated %}action-disabled{% endif %}" style="position: relative;">
-            <form id="addGoalForm" method="POST" action="{% url 'add_goal' %}"
+            <form id="addGoalForm" method="POST" action="{% url 'api_add_goal' %}"
                   {% if not user.is_authenticated %}onsubmit="event.preventDefault(); alert('Войдите для добавления целей');"{% endif %}>
                 {% csrf_token %}
                 <h3><i class="fa-solid fa-plus-circle"></i> Добавить цель</h3>

@@ -13,12 +13,15 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function checkAuth() {
   const user = await window.auth.checkAuth();
   updateUIForAuthState(!!user);
+  
+  const currentPath = window.location.pathname;
+  const isAuthPage = currentPath === '/login/' || currentPath.includes('/login/');
 
   // Для всех страниц ограничиваем функционал если не авторизован
-  if (!user) {
+  if (!user && !isAuthPage) {
       limitFunctionality();
   }
-}
+}   
 
 function updateUIForAuthState(isAuthenticated) {
   // Обновление кнопки входа/выхода

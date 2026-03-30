@@ -5,12 +5,12 @@ class Auth {
 
     getCSRFToken() {
         const tokenInput = document.querySelector('[name=csrfmiddlewaretoken]');
-        return (tokenInput && tokenInput.value) ? tokenInput.value : '';
+        return tokenInput ? tokenInput.value : '';
     }
 
     async register(email, password, full_name) {
         try {
-            const response = await fetch('/api/register/', {
+            const response = await fetch('/api/auth/register/', {  // ВОЗВРАЩАЕМ /api/auth/
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -26,19 +26,22 @@ class Auth {
             const data = await response.json();
 
             if (response.ok) {
-                // Автоматический вход после регистрации
                 return this.login(email, password);
             } else {
-                return { success: false, message: data.error || 'Ошибка регистрации' };
+                return { 
+                    success: false, 
+                    message: data.message || 'Ошибка регистрации' 
+                };
             }
         } catch (error) {
+            console.error('Register error:', error);
             return { success: false, message: 'Ошибка сети' };
         }
     }
 
     async login(email, password) {
         try {
-            const response = await fetch('/api/login/', {
+            const response = await fetch('/api/auth/login/', {  // ВОЗВРАЩАЕМ /api/auth/
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -52,11 +55,9 @@ class Auth {
 
             const data = await response.json();
 
-            if (response.ok) {
-                // Сохраняем информацию о пользователе
+            if (response.ok && data.success) {
                 localStorage.setItem('currentUser', JSON.stringify(data.user));
                 
-                // Возврат на предыдущую страницу если есть
                 const returnUrl = localStorage.getItem('returnUrl');
                 if (returnUrl) {
                     localStorage.removeItem('returnUrl');
@@ -67,16 +68,20 @@ class Auth {
 
                 return { success: true, user: data.user };
             } else {
-                return { success: false, message: data.error || 'Неверные данные' };
+                return { 
+                    success: false, 
+                    message: data.message || 'Неверные данные' 
+                };
             }
         } catch (error) {
+            console.error('Login error:', error);
             return { success: false, message: 'Ошибка сети' };
         }
     }
 
     async logout() {
         try {
-            await fetch('/api/logout/', {
+            await fetch('/api/auth/logout/', {  // ВОЗВРАЩАЕМ /api/auth/
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': this.csrfToken
@@ -90,18 +95,9 @@ class Auth {
         }
     }
 
-    getCurrentUser() {
-        const userData = localStorage.getItem('currentUser');
-        return userData ? JSON.parse(userData) : null;
-    }
-
-    isAuthenticated() {
-        return !!this.getCurrentUser();
-    }
-
     async checkAuth() {
         try {
-            const response = await fetch('/api/check-auth/');
+            const response = await fetch('/api/auth/check-auth/');  // ВОЗВРАЩАЕМ /api/auth/
             const data = await response.json();
             
             if (data.authenticated && data.user) {
