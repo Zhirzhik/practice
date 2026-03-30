@@ -41,6 +41,15 @@ urlpatterns = [
     path('login/', TemplateView.as_view(template_name='login.html'), name='login'),
 ]
 
+# Добавьте для отладки:
+print("URLs loaded")
+print("Including apps.users.urls")
+print("Including apps.users.profile_urls")
+print("Including apps.jobs.urls")
+print("Including apps.forum.urls")
+print("Including apps.stories.urls")
+print("Including apps.tracking.urls")
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
